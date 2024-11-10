@@ -22,13 +22,13 @@
         <img width="200" height="350" alt="Démarrage de l'application" src="https://github.com/user-attachments/assets/cca9d9b4-382a-413c-9ac5-8db06aaed872">
       </td>
        <td align="center">
-        <span>Compass Fragment </span>
+        <span>Qibla Fragment </span>
         <br>
         <br>
         <img width="200" height="350" alt="Démarrage de l'application" src="https://github.com/user-attachments/assets/28759117-c29c-44b6-82bd-fba673710a46">
        </td>
          <td align="center">
-        <span>Compass Alignement </span>
+        <span>Qibla Alignement </span>
         <br>
         <br>
         <img width="200" height="350" alt="Démarrage de l'application" src="https://github.com/user-attachments/assets/ac3f915d-2c90-483a-9f71-780be5acf89c">
