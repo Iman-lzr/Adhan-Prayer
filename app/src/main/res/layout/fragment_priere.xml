@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <!-- En-tête avec ImageView et ville -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/noir"
+            android:layout_gravity="center" />
+
+
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="77dp"
+            android:layout_gravity="center|bottom"
+            android:layout_marginTop="3dp"
+            android:src="@drawable/bismi" />
+    </FrameLayout>
+
+    <!-- Barre de date avec flèches -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:background="@color/black"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:id="@+id/dateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="date"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:textStyle="italic|bold"
+            android:drawablePadding="40dp"
+            android:drawableStart="@drawable/baseline_arrow_back_ios_24"
+            android:drawableEnd="@drawable/baseline_arrow_forward_ios_24"
+            android:padding="10dp" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/cityTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="city"
+        android:textSize="18sp"
+        android:textStyle="italic|bold"
+        android:textColor="@color/black"
+        android:drawableStart="@drawable/baseline_location_pin_24"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp" />
+    <TextView
+        android:id="@+id/heuretextview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="time"
+        android:textSize="18sp"
+        android:textStyle="italic|bold"
+        android:textColor="@color/black"
+        android:layout_marginTop="10dp"
+        android:drawableStart="@drawable/baseline_access_time_24"
+        android:layout_gravity="bottom|center"
+        />
+
+
+    <!-- Horaire Fajr avec Switch -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/fajr"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textStyle="bold|italic"
+            android:layout_height="wrap_content"
+            android:text="Fajr"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/fajrTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <Switch
+            android:id="@+id/fajrSwitch"
+            android:layout_width="wrap_content"
+            android:thumbTint="@color/switchh"
+            android:layout_height="wrap_content"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    </LinearLayout>
+
+    <!-- Horaire Dhuhr avec Switch -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/dhuhr"
+            android:layout_width="0dp"
+            android:textStyle="bold|italic"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Dhuhr"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/dhuhrTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <Switch
+            android:id="@+id/dhuhrSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumbTint="@color/switchh"
+            tools:ignore="UseSwitchCompatOrMaterialXml"/>
+    </LinearLayout>
+
+    <!-- Horaire Asr avec Switch -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/asr"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Asr"
+            android:textSize="16sp"
+            android:textStyle="bold|italic"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/asrTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <Switch
+            android:id="@+id/asrSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumbTint="@color/switchh"
+            tools:ignore="UseSwitchCompatOrMaterialXml"/>
+    </LinearLayout>
+
+    <!-- Horaire Maghrib avec Switch -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/maghrib"
+            android:layout_width="0dp"
+            android:textStyle="bold|italic"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Maghrib"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/maghribTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <Switch
+            android:id="@+id/maghribSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumbTint="@color/switchh"
+            tools:ignore="UseSwitchCompatOrMaterialXml"/>
+    </LinearLayout>
+
+    <!-- Horaire Isha avec Switch -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/isha"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:textStyle="bold|italic"
+            android:layout_height="wrap_content"
+            android:text="Isha"
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/ishaTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="16sp"
+            android:textColor="@color/black" />
+
+        <Switch
+            android:id="@+id/ishaSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:thumbTint="@color/switchh"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
+    </LinearLayout>
+
+
+</LinearLayout>
