@@ -1,24 +1,35 @@
 package com.example.salat
 
-import android.content.BroadcastReceiver
+
+
 import android.content.Context
-import android.content.Intent
+
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 
-class PrayerNotificationReceiver : BroadcastReceiver() {
+class PrayerNotificationWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
 
-    override fun onReceive(context: Context, intent: Intent) {
-        val prayerName = intent.getStringExtra("prayerName") ?: "Prayer"
+    override fun doWork(): Result {
+        val prayerName = inputData.getString("prayerName") ?: return Result.failure()
 
-        val notificationBuilder = NotificationCompat.Builder(context, "PRAYER_TIMES_CHANNEL")
+        // Ici, vous pouvez gérer la logique de notification pour chaque prière.
+        sendNotification(prayerName)
+
+        return Result.success()
+    }
+
+    private fun sendNotification(prayerName: String) {
+        val notificationManager = NotificationManagerCompat.from(applicationContext)
+
+        val notification = NotificationCompat.Builder(applicationContext, "PRAYER_TIMES_CHANNEL")
             .setSmallIcon(R.drawable.nabawi)
-            .setContentTitle("Time for $prayerName")
-            .setContentText("It's time for $prayerName prayer.")
+            .setContentTitle("C'est l'heure de la prière")
+            .setContentText("Il est temps de prier $prayerName.")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
+            .build()
 
-        val notificationManager = NotificationManagerCompat.from(context)
-        notificationManager.notify(prayerName.hashCode(), notificationBuilder.build())
+        notificationManager.notify(prayerName.hashCode(), notification)
     }
 }

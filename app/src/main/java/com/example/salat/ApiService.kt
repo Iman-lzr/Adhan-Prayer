@@ -7,12 +7,13 @@ import retrofit2.http.Query
 
 
 
+
 interface PrayerTimesAPI {
 
-    @GET("v1/timings")
+    @GET("timings")
     fun getPrayerTimes(
         @Query("latitude") latitude: Double,
-        @Query("longitude") longitude: Double,
-        @Query("method") method: Int = 2 // Méthode de calcul (2 pour ISNA, par exemple)
+        @Query("longitude") longitude: Double
     ): Call<PrayerTimesResponse>
+
 }

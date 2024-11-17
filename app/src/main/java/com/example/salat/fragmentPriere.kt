@@ -24,6 +24,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import retrofit2.Call
@@ -33,6 +36,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class PrayerTimesFragment : Fragment() {
 
@@ -54,8 +58,8 @@ class PrayerTimesFragment : Fragment() {
 
     private val REQUEST_LOCATION_PERMISSION = 1
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl("http://api.aladhan.com/")
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://api.aladhan.com/v1/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
@@ -103,10 +107,9 @@ class PrayerTimesFragment : Fragment() {
             )
         }
 
-        updateCurrentTime() // Appel à la fonction de mise à jour de l'heure
+        updateCurrentTime()
         checkAndUpdatePrayerTimes()
 
-        // des listeners pour les switches pour activer les notifications
         setupSwitchListeners()
 
         return rootView
@@ -165,9 +168,8 @@ class PrayerTimesFragment : Fragment() {
     private fun checkAndUpdatePrayerTimes() {
         val currentDate = getCurrentDate()
         if (currentDate != lastCheckedDate) {
-            // Si la date a changé, mettre à jour les horaires de prière
             lastCheckedDate = currentDate
-            getUserLocation()  // Récupère la localisation et les horaires
+            getUserLocation()
         }
     }
 
@@ -180,130 +182,109 @@ class PrayerTimesFragment : Fragment() {
                 if (response.isSuccessful && response.body() != null) {
                     val prayerTimes = response.body()?.data?.timings
                     prayerTimes?.let {
-                        // Mise à jour des horaires affichés
-                        fajrTextView.text = it.Fajr
-                        dhuhrTextView.text = it.Dhuhr
-                        asrTextView.text = it.Asr
-                        maghribTextView.text = it.Maghrib
-                        ishaTextView.text = it.Isha
+                        fajrTextView.text = it.Fajr ?: "Inconnu"
+                        dhuhrTextView.text = it.Dhuhr ?: "Inconnu"
+                        asrTextView.text = it.Asr ?: "Inconnu"
+                        maghribTextView.text = it.Maghrib ?: "Inconnu"
+                        ishaTextView.text = it.Isha ?: "Inconnu"
 
-                        // Vérification des switches et planification des notifications
                         if (switchFajr.isChecked) {
-                            schedulePrayerNotification(it.Fajr, "Fajr", 1)
-                            triggerAdhan("Fajr")
+                            it.Fajr?.let { it1 -> schedulePrayerNotificationWithWorkManager(it1, "Fajr", 1) }
                         }
                         if (switchDhuhr.isChecked) {
-                            schedulePrayerNotification(it.Dhuhr, "Dhuhr", 2)
-                            triggerAdhan("Dhuhr")
+                            it.Dhuhr?.let { it1 -> schedulePrayerNotificationWithWorkManager(it1, "Dhuhr", 2) }
                         }
                         if (switchAsr.isChecked) {
-                            schedulePrayerNotification(it.Asr, "Asr", 3)
-                            triggerAdhan("Asr")
+                            it.Asr?.let { it1 -> schedulePrayerNotificationWithWorkManager(it1, "Asr", 3) }
                         }
                         if (switchMaghrib.isChecked) {
-                            schedulePrayerNotification(it.Maghrib, "Maghrib", 4)
-                            triggerAdhan("Maghrib")
+                            it.Maghrib?.let { it1 -> schedulePrayerNotificationWithWorkManager(it1, "Maghrib", 4) }
                         }
                         if (switchIsha.isChecked) {
-                            schedulePrayerNotification(it.Isha, "Isha", 5)
-                            triggerAdhan("Isha")
+                            it.Isha?.let { it1 -> schedulePrayerNotificationWithWorkManager(it1, "Isha", 5) }
                         }
                     }
+                } else {
+                    Log.e("PrayerTimes", "Erreur API: ${response.code()}")
+                    Toast.makeText(context, "Erreur lors de la récupération des horaires", Toast.LENGTH_SHORT).show()
                 }
             }
 
             override fun onFailure(call: Call<PrayerTimesResponse>, t: Throwable) {
-                Log.e("PrayerTimes", "Error fetching prayer times", t)
+                Log.e("PrayerTimes", "Erreur lors de la récupération des horaires", t)
                 Toast.makeText(context, "Erreur lors de la récupération des horaires", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun schedulePrayerNotification(prayerTime: String, prayerName: String, requestCode: Int) {
+    private fun schedulePrayerNotificationWithWorkManager(prayerTime: String, prayerName: String, id: Int) {
         try {
-            val prayerCalendar = Calendar.getInstance().apply {
-                time = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(prayerTime)
+            val prayerCalendar = Calendar.getInstance()
+            prayerCalendar.time = SimpleDateFormat("HH:mm", Locale.getDefault()).parse(prayerTime)
+
+            // Si l'heure de la prière est déjà passée, planifiez-la pour le jour suivant.
+            if (prayerCalendar.timeInMillis < System.currentTimeMillis()) {
+                prayerCalendar.add(Calendar.DAY_OF_YEAR, 1)
             }
 
-            // Vérifier si l'heure de prière est déjà passée, sinon programmer l'alarme
-            val currentTime = Calendar.getInstance()
-            if (prayerCalendar.before(currentTime)) {
-                prayerCalendar.add(Calendar.DATE, 1)  // Ajouter un jour si l'heure est déjà passée
-            }
+            val delay = prayerCalendar.timeInMillis - System.currentTimeMillis()
 
-            val triggerTime = prayerCalendar.timeInMillis
+            val inputData = Data.Builder()
+                .putString("prayerName", prayerName)
+                .build()
 
-            // Créer un PendingIntent unique pour chaque prière
-            val intent = Intent(requireContext(), PrayerNotificationReceiver::class.java).apply {
-                putExtra("prayerName", prayerName)
-            }
-            val pendingIntent = PendingIntent.getBroadcast(
-                requireContext(),
-                requestCode,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
+            val workRequest = OneTimeWorkRequest.Builder(PrayerNotificationWorker::class.java)
+                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+                .setInputData(inputData)
+                .build()
 
-            val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent)
+            WorkManager.getInstance(requireContext()).enqueue(workRequest)
+
         } catch (e: Exception) {
-            Log.e("PrayerTimes", "Invalid time format for $prayerName", e)
+            Log.e("PrayerTimes", "Erreur de planification de la notification avec WorkManager", e)
         }
     }
 
-
-    private fun triggerAdhan(prayerName: String) {
-
-        val intent = Intent(requireContext(), AdhanService::class.java).apply {
-            putExtra("prayerName", prayerName)
-        }
-        requireContext().startService(intent)
-    }
 
     private fun setupSwitchListeners() {
         switchFajr.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                schedulePrayerNotification(fajrTextView.text.toString(), "Fajr", 1)
-                triggerAdhan("Fajr")
+                fajrTextView.text?.let { schedulePrayerNotificationWithWorkManager(it.toString(), "Fajr", 1) }
             }
         }
         switchDhuhr.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                schedulePrayerNotification(dhuhrTextView.text.toString(), "Dhuhr", 2)
-                triggerAdhan("Dhuhr")
+                dhuhrTextView.text?.let { schedulePrayerNotificationWithWorkManager(it.toString(), "Dhuhr", 2) }
             }
         }
         switchAsr.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                schedulePrayerNotification(asrTextView.text.toString(), "Asr", 3)
-                triggerAdhan("Asr")
+                asrTextView.text?.let { schedulePrayerNotificationWithWorkManager(it.toString(), "Asr", 3) }
             }
         }
         switchMaghrib.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                schedulePrayerNotification(maghribTextView.text.toString(), "Maghrib", 4)
-                triggerAdhan("Maghrib")
+                maghribTextView.text?.let { schedulePrayerNotificationWithWorkManager(it.toString(), "Maghrib", 4) }
             }
         }
         switchIsha.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                schedulePrayerNotification(ishaTextView.text.toString(), "Isha", 5)
-                triggerAdhan("Isha")
+                ishaTextView.text?.let { schedulePrayerNotificationWithWorkManager(it.toString(), "Isha", 5) }
             }
         }
     }
-
     private fun updateCurrentTime() {
         val handler = Handler(Looper.getMainLooper())
         val runnable = object : Runnable {
             override fun run() {
-                val currentTime = Calendar.getInstance().time
-                val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
-                currentTimeTextView.text = sdf.format(currentTime)
-
-                handler.postDelayed(this, 1000) // Mettre à jour chaque seconde
+                // Get the current time and format it to HH:mm:ss
+                val currentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+                currentTimeTextView.text = currentTime
+                handler.postDelayed(this, 1000) // Update every second
             }
         }
         handler.post(runnable)
     }
+
 }
+
