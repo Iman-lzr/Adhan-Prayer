@@ -25,13 +25,13 @@
         <span>Qibla Fragment </span>
         <br>
         <br>
-        <img width="200" height="350" alt="Démarrage de l'application" src="https://github.com/user-attachments/assets/28759117-c29c-44b6-82bd-fba673710a46">
+        <img width="200" height="350" alt="Démarrage de l'application" src="https://github.com/user-attachments/assets/efbffa38-d5e2-4c3e-9ed0-9988bc9011fc">
        </td>
          <td align="center">
         <span>Qibla Alignement </span>
         <br>
         <br>
-        <img width="200" height="350" alt="Démarrage de l'application" src="https://github.com/user-attachments/assets/ac3f915d-2c90-483a-9f71-780be5acf89c">
+        <img width="200" height="350" alt="Démarrage de l'application" src="https://github.com/user-attachments/assets/8f3aafd1-3c39-4d18-8b66-00022e647623">
      </td>
       
      
